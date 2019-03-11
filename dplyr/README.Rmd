@@ -13,7 +13,7 @@ library(dplyr)
 ```
 
 
-# 1. Create(`muate()`) sum and percentage of sum for columns
+## 1.Create(`muate()`) sum and percentage of sum for columns
 
 Instead of doing:
 
@@ -24,7 +24,8 @@ mtcars %>%
            disp_sum = sum(disp),
            mpg_pct = mpg/sum(mpg),
            disp_pct = disp/sum(disp)) %>%
-    head()
+    head() %>%
+    knitr::kable()
 ```
 
 
@@ -36,6 +37,7 @@ mtcars %>%
     transmute_at(vars(mpg,disp),
               funs(sum = sum(.),
                    pct = ./sum(.))) %>%
-    head()
+    head() %>%
+    knitr::kable()
 ```
 
