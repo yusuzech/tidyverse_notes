@@ -1,0 +1,41 @@
+---
+title: "README"
+author: "Yifu Yan"
+date: "3/11/2019"
+output: 
+    md_document:
+        variant: markdown_github
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+```
+
+
+# 1. Create(`muate()`) sum and percentage of sum for columns
+
+Instead of doing:
+
+```{r}
+mtcars %>%
+    group_by(cyl) %>%
+    transmute(mpg_sum = sum(mpg),
+           disp_sum = sum(disp),
+           mpg_pct = mpg/sum(mpg),
+           disp_pct = disp/sum(disp)) %>%
+    head()
+```
+
+
+Do:
+
+```{r}
+mtcars %>%
+    group_by(cyl) %>%
+    transmute_at(vars(mpg,disp),
+              funs(sum = sum(.),
+                   pct = ./sum(.))) %>%
+    head()
+```
+

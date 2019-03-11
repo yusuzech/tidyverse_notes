@@ -1,2 +1,4 @@
 # tidyverse_notes
-Avoid common mistake and write compact codes using tidyverse.
+Avoid common mistake and write efficient codes using tidyverse.
+
+## (dplyr)[/dplyr/README.md]
