@@ -1,6 +1,18 @@
 1.Create(`muate()`) sum and percentage of sum for columns
 ---------------------------------------------------------
 
+Use scoped variants of `summarise()`, `mutate(`) and `transmute()` when
+handling many columns.
+
+1.  `.predicate`:
+    1.  `_at()` variants accepts `vars()` for selecting columns.
+    2.  `_if()` variants accepts logical conditions for selecting
+        columns.
+2.  `.funs`:
+    1.  Use `funs()`, which support renaming new columns
+    2.  Use function name(e.g. sum,mean)
+    3.  Use purrr syntax(`~.x`)
+
 Instead of doing:
 
     mtcars %>%
