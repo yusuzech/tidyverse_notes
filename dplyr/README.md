@@ -1,4 +1,4 @@
-1. Create(`muate()`) sum and percentage of sum for columns
+## 1. Create(`muate()`) sum and percentage of sum for columns
 ==========================================================
 
 Instead of doing:
