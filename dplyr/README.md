@@ -183,10 +183,6 @@ package, we can perform these calculations easily.
 
     ## [1] 1 2 3
 
-    cat("--------------------------------\n")
-
-    ## --------------------------------
-
     # convert a list of string to variable and evaluate
     for(v in syms(list("x","y"))){
         print(eval_tidy(v))
@@ -202,10 +198,7 @@ package, we can perform these calculations easily.
 
     ## [1] "x"
 
-    cat("-------------\n")
-
-    ## -------------
-
+    #convert a list of variable to string
     for(x in quos(x,y,z)){
         print(as_name(x))
     }
@@ -216,14 +209,10 @@ package, we can perform these calculations easily.
 
 #### Evaluate string as code
 
+    #evaluate string as code
     print(eval_tidy(parse_expr("sum(c(1,2,3))")))
 
     ## [1] 6
-
-    cat("more steps required if string is saved to a variable\n--------------------------------\n")
-
-    ## more steps required if string is saved to a variable
-    ## --------------------------------
 
     # one more conversion is required is the string is saved to a variable
     x <- "sum(c(1,2,3))"
@@ -235,11 +224,7 @@ package, we can perform these calculations easily.
 
     ## [1] 6
 
-    cat("data from global environment\n-----------------------\n")
-
-    ## data from global environment
-    ## -----------------------
-
+    # evaluate a "list" of string as code
     x <- 1
     y <- 2
     z <- 3
@@ -251,11 +236,7 @@ package, we can perform these calculations easily.
     ## [1] TRUE
     ## [1] TRUE
 
-    cat("use custom data\n---------------------\n")
-
-    ## use custom data
-    ## ---------------------
-
+    # use custom data
     for(arg in parse_exprs("x == 1;y > 1;is.numeric(z)")){
         print(eval_tidy(arg,data = list(x=2,y=0,z="a"))) # custom data
     }
@@ -271,10 +252,6 @@ package, we can perform these calculations easily.
         quo_text()
 
     ## [1] "x + 5"
-
-    cat("-------------------------\n")
-
-    ## -------------------------
 
     for(arg in quos(x+5,y >2,z != 3)){
         print(quo_text(arg))

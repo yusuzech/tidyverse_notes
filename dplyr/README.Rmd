@@ -73,7 +73,7 @@ x <- c(1,2,3)
 y <- c("a","b","c")
 # convert and evaluate
 print(eval_tidy(sym("x")))
-cat("--------------------------------\n")
+
 # convert a list of string to variable and evaluate
 for(v in syms(list("x","y"))){
     print(eval_tidy(v))
@@ -85,7 +85,8 @@ for(v in syms(list("x","y"))){
 ```{r}
 quo(x) %>%
     as_name()
-cat("-------------\n")
+
+#convert a list of variable to string
 for(x in quos(x,y,z)){
     print(as_name(x))
 }
@@ -93,8 +94,9 @@ for(x in quos(x,y,z)){
 
 #### Evaluate string as code
 ```{r}
+#evaluate string as code
 print(eval_tidy(parse_expr("sum(c(1,2,3))")))
-cat("more steps required if string is saved to a variable\n--------------------------------\n")
+
 
 # one more conversion is required is the string is saved to a variable
 x <- "sum(c(1,2,3))"
@@ -104,14 +106,15 @@ quo(x) %>%
     eval_tidy() %>%
     print()
 
-cat("data from global environment\n-----------------------\n")
+# evaluate a "list" of string as code
 x <- 1
 y <- 2
 z <- 3
 for(arg in parse_exprs("x == 1;y > 1;is.numeric(z)")){
     print(eval_tidy(arg)) # default environment: global_env()
 }
-cat("use custom data\n---------------------\n")
+
+# use custom data
 for(arg in parse_exprs("x == 1;y > 1;is.numeric(z)")){
     print(eval_tidy(arg,data = list(x=2,y=0,z="a"))) # custom data
 }
@@ -124,7 +127,7 @@ for(arg in parse_exprs("x == 1;y > 1;is.numeric(z)")){
 x <- 5
 quo(x+5) %>% 
     quo_text()
-cat("-------------------------\n")
+
 for(arg in quos(x+5,y >2,z != 3)){
     print(quo_text(arg))
 }
