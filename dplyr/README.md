@@ -1,5 +1,5 @@
-1.Create(`muate()`) sum and percentage of sum for columns
----------------------------------------------------------
+1.Usage of `mutate_all()`, `mutate_if()` and `mutate_at()`
+----------------------------------------------------------
 
 Use scoped variants of `summarise()`, `mutate(`) and `transmute()` when
 handling many columns.
@@ -12,6 +12,21 @@ handling many columns.
     1.  Use `funs()`, which support renaming new columns
     2.  Use function name(e.g. sum,mean)
     3.  Use purrr syntax(`~.x`)
+
+<!-- -->
+
+    library(dplyr)
+
+    ## 
+    ## Attaching package: 'dplyr'
+
+    ## The following objects are masked from 'package:stats':
+    ## 
+    ##     filter, lag
+
+    ## The following objects are masked from 'package:base':
+    ## 
+    ##     intersect, setdiff, setequal, union
 
 Instead of doing:
 
@@ -145,3 +160,128 @@ Do:
 </tr>
 </tbody>
 </table>
+
+2.Programming with dplyr(variable, argument and string conversions)
+-------------------------------------------------------------------
+
+When Programming with **tidyverse(dplyr,ggplot)**, we need to make
+conversions betwwen string, argument and variable frequently. It can be
+really annoying if we don’t know what to do. Luckily,with `rlang`
+package, we can perform these calculations easily.
+
+    library(dplyr)
+    library(rlang)
+
+### No functions
+
+#### Convert String to Variable
+
+    x <- c(1,2,3) 
+    y <- c("a","b","c")
+    # convert and evaluate
+    print(eval_tidy(sym("x")))
+
+    ## [1] 1 2 3
+
+    cat("--------------------------------\n")
+
+    ## --------------------------------
+
+    # convert a list of string to variable and evaluate
+    for(v in syms(list("x","y"))){
+        print(eval_tidy(v))
+    }
+
+    ## [1] 1 2 3
+    ## [1] "a" "b" "c"
+
+#### Convert variable to string
+
+    quo(x) %>%
+        as_name()
+
+    ## [1] "x"
+
+    cat("-------------\n")
+
+    ## -------------
+
+    for(x in quos(x,y,z)){
+        print(as_name(x))
+    }
+
+    ## [1] "x"
+    ## [1] "y"
+    ## [1] "z"
+
+#### Evaluate string as code
+
+    print(eval_tidy(parse_expr("sum(c(1,2,3))")))
+
+    ## [1] 6
+
+    cat("more steps required if string is saved to a variable\n--------------------------------\n")
+
+    ## more steps required if string is saved to a variable
+    ## --------------------------------
+
+    # one more conversion is required is the string is saved to a variable
+    x <- "sum(c(1,2,3))"
+    quo(x) %>%
+        eval_tidy() %>%
+        parse_expr() %>%
+        eval_tidy() %>%
+        print()
+
+    ## [1] 6
+
+    cat("data from global environment\n-----------------------\n")
+
+    ## data from global environment
+    ## -----------------------
+
+    x <- 1
+    y <- 2
+    z <- 3
+    for(arg in parse_exprs("x == 1;y > 1;is.numeric(z)")){
+        print(eval_tidy(arg)) # default environment: global_env()
+    }
+
+    ## [1] TRUE
+    ## [1] TRUE
+    ## [1] TRUE
+
+    cat("use custom data\n---------------------\n")
+
+    ## use custom data
+    ## ---------------------
+
+    for(arg in parse_exprs("x == 1;y > 1;is.numeric(z)")){
+        print(eval_tidy(arg,data = list(x=2,y=0,z="a"))) # custom data
+    }
+
+    ## [1] FALSE
+    ## [1] FALSE
+    ## [1] FALSE
+
+#### Turn code in to string
+
+    x <- 5
+    quo(x+5) %>% 
+        quo_text()
+
+    ## [1] "x + 5"
+
+    cat("-------------------------\n")
+
+    ## -------------------------
+
+    for(arg in quos(x+5,y >2,z != 3)){
+        print(quo_text(arg))
+    }
+
+    ## [1] "x + 5"
+    ## [1] "y > 2"
+    ## [1] "z != 3"
+
+### In functions
