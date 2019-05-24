@@ -164,24 +164,30 @@ display_table_shape <- function(df){
 
 ## Testing
 
+Please don’t forget to load `tidyverse` and `readxl` first and set
+`col_names = FALSE`
+
 ``` r
-all_table <- read_excel("multiple_tables_sheet.xlsx")
+library(tidyverse)
+library(readxl)
+all_table <- read_excel("multiple_tables_sheet.xlsx",col_names = FALSE)
 split_df(all_table)
 ```
 
     ## Warning in split_df(all_table): Please don't use first row as column names.
 
     ## [[1]]
-    ## # A tibble: 3 x 2
-    ##   `Metric 1`   `1`
-    ##   <chr>      <dbl>
-    ## 1 Metric 2    33  
-    ## 2 Metric 3     2.5
-    ## 3 Metric 4     0.5
+    ## # A tibble: 4 x 2
+    ##   X__1      X__2
+    ##   <chr>    <dbl>
+    ## 1 Metric 1   1  
+    ## 2 Metric 2  33  
+    ## 3 Metric 3   2.5
+    ## 4 Metric 4   0.5
     ## 
     ## [[2]]
     ## # A tibble: 7 x 8
-    ##    X__7 X__8      X__9      X__10     X__11     X__12    X__13    X__14    
+    ##    X__9 X__10     X__11     X__12     X__13     X__14    X__15    X__16    
     ##   <dbl> <chr>     <chr>     <chr>     <chr>     <chr>    <chr>    <chr>    
     ## 1    NA A         B         C         D         E        F        G        
     ## 2     1 0.192982~ 0.952270~ 0.880762~ 0.462242~ 0.14485~ 0.42462~ 0.687622~
@@ -193,7 +199,7 @@ split_df(all_table)
     ## 
     ## [[3]]
     ## # A tibble: 5 x 4
-    ##    X__5  X__6   X__7 X__8                 
+    ##    X__7  X__8   X__9 X__10                
     ##   <dbl> <dbl>  <dbl> <chr>                
     ## 1 0.913 0.847 0.0562 8.9856029499354229E-2
     ## 2 0.306 0.214 0.372  0.6193422103078946   
@@ -203,7 +209,7 @@ split_df(all_table)
     ## 
     ## [[4]]
     ## # A tibble: 5 x 2
-    ##   X__14                X__15
+    ##   X__16                X__17
     ##   <chr>                <dbl>
     ## 1 <NA>                NA    
     ## 2 0.37161583002087606  0.516
@@ -213,7 +219,7 @@ split_df(all_table)
     ## 
     ## [[5]]
     ## # A tibble: 5 x 4
-    ##   X__10               X__11             X__12             X__13            
+    ##   X__12               X__13             X__14             X__15            
     ##   <chr>               <chr>             <chr>             <chr>            
     ## 1 0.62342375649369253 0.96597050194001~ 0.85123985341450~ 0.90694876344258~
     ## 2 0.10482950199074381 0.38701538991483~ 0.44115009542577~ 0.44844181894589~

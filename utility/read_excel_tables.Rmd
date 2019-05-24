@@ -171,9 +171,12 @@ display_table_shape <- function(df){
 
 ## Testing 
 
-```{r}
+Please don't forget to load `tidyverse` and `readxl` first and set `col_names = FALSE`
 
-all_table <- read_excel("multiple_tables_sheet.xlsx")
+```{r}
+library(tidyverse)
+library(readxl)
+all_table <- read_excel("multiple_tables_sheet.xlsx",col_names = FALSE)
 split_df(all_table)
 
 set_1row_colname(split_df(all_table,showWarnig = F)[[2]])
