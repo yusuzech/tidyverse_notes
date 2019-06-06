@@ -8,8 +8,8 @@ handling many columns.
     1.  `_at()` variants accepts `vars()` for selecting columns.
     2.  `_if()` variants accepts logical conditions for selecting
         columns.
-2.  `.funs`:
-    1.  Use `funs()`, which support renaming new columns
+2.  `.list`:
+    1.  Use `list()`, which support renaming new columns
     2.  Use function name(e.g. sum,mean)
     3.  Use purrr syntax(`~.x`)
 
@@ -100,7 +100,7 @@ Do:
     mtcars %>%
         group_by(cyl) %>%
         transmute_at(vars(mpg,disp),
-                  funs(sum = sum(.),
+                  list(sum = sum(.),
                        pct = ./sum(.))) %>%
         head() %>%
         knitr::kable()
