@@ -157,7 +157,7 @@ display_table_shape <- function(df){
         group_by(x) %>%
         mutate(y = -row_number()) %>%
         ungroup() %>%
-        filter(value == 1) %>%
+        dplyr::filter(value == 1) %>%
         ggplot(aes(x = x, y = y,fill = value)) +
         geom_tile(fill = "skyblue3") +
         scale_x_continuous(position = "top") +
@@ -330,7 +330,7 @@ display_table_shape <- function(df){
         group_by(x) %>%
         mutate(y = -row_number()) %>%
         ungroup() %>%
-        filter(value == 1) %>%
+        dplyr::filter(value == 1) %>%
         ggplot(aes(x = x, y = y,fill = value)) +
         geom_tile(fill = "skyblue3") +
         scale_x_continuous(position = "top") +
