@@ -8,8 +8,8 @@ handling many columns.
     1.  `_at()` variants accepts `vars()` for selecting columns.
     2.  `_if()` variants accepts logical conditions for selecting
         columns.
-2.  `.list`:(.funs deprecated)
-    1.  Use `list()`, which support renaming new columns
+2.  `.funs`:
+    1.  Use `funs()`, which support renaming new columns
     2.  Use function name(e.g. sum,mean)
     3.  Use purrr syntax(`~.x`)
 
@@ -27,6 +27,8 @@ handling many columns.
     ## The following objects are masked from 'package:base':
     ## 
     ##     intersect, setdiff, setequal, union
+
+    library(rlang)
 
 Instead of doing:
 
@@ -100,10 +102,20 @@ Do:
     mtcars %>%
         group_by(cyl) %>%
         transmute_at(vars(mpg,disp),
-                  list(sum = ~sum(.),
-                       pct = ~./sum(.))) %>%
+                  funs(sum = sum(.),
+                       pct = ./sum(.))) %>%
         head() %>%
         knitr::kable()
+
+    ## Warning: funs() is soft deprecated as of dplyr 0.8.0
+    ## please use list() instead
+    ## 
+    ##   # Before:
+    ##   funs(name = f(.))
+    ## 
+    ##   # After: 
+    ##   list(name = ~ f(.))
+    ## This warning is displayed once per session.
 
 <table>
 <thead>
@@ -245,7 +257,7 @@ package, we can perform these calculations easily.
     ## [1] FALSE
     ## [1] FALSE
 
-#### Turn code in to string
+#### Turn code into string
 
     x <- 5
     quo(x+5) %>% 
@@ -262,3 +274,27 @@ package, we can perform these calculations easily.
     ## [1] "z != 3"
 
 ### In functions
+
+#### Turn string into code
+
+    library(dplyr)
+    library(rlang)
+
+    get_avg <- function(g){
+        g <- sym(g)
+        return(
+            iris %>%
+                group_by(!!g) %>%
+                summarise(avg = mean(Sepal.Length))
+        )
+    }
+
+
+    get_avg("Species")
+
+    ## # A tibble: 3 x 2
+    ##   Species      avg
+    ##   <fct>      <dbl>
+    ## 1 setosa      5.01
+    ## 2 versicolor  5.94
+    ## 3 virginica   6.59

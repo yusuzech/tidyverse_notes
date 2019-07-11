@@ -26,6 +26,7 @@ Use scoped variants of `summarise()`, `mutate(`) and `transmute()` when handling
 
 ```{r}
 library(dplyr)
+library(rlang)
 ```
 
 
@@ -121,7 +122,7 @@ for(arg in parse_exprs("x == 1;y > 1;is.numeric(z)")){
 
 ```
 
-#### Turn code in to string
+#### Turn code into string
 
 ```{r}
 x <- 5
@@ -137,3 +138,21 @@ for(arg in quos(x+5,y >2,z != 3)){
 
 ### In functions
 
+#### Turn string into code
+
+```{r}
+library(dplyr)
+library(rlang)
+
+get_avg <- function(g){
+    g <- sym(g)
+    return(
+        iris %>%
+            group_by(!!g) %>%
+            summarise(avg = mean(Sepal.Length))
+    )
+}
+
+
+get_avg("Species")
+```
