@@ -275,7 +275,7 @@ package, we can perform these calculations easily.
 
 ### In functions
 
-#### Turn string into bariable
+#### Turn string into variable
 
     library(dplyr)
     library(rlang)
@@ -289,7 +289,6 @@ package, we can perform these calculations easily.
         )
     }
 
-
     get_avg("Species")
 
     ## # A tibble: 3 x 2
@@ -298,3 +297,17 @@ package, we can perform these calculations easily.
     ## 1 setosa      5.01
     ## 2 versicolor  5.94
     ## 3 virginica   6.59
+
+    library(dplyr)
+    library(ggplot2)
+    library(rlang)
+
+    color_by <- function(type){
+        p <- ggplot(data = iris,aes(x = Sepal.Length, y = Sepal.Width)) +
+            geom_point(aes(color = !!sym(type)))
+        return(p)
+    }
+
+    color_by("Species")
+
+![](README_files/figure-markdown_strict/unnamed-chunk-10-1.png)
