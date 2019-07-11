@@ -275,7 +275,7 @@ package, we can perform these calculations easily.
 
 ### In functions
 
-#### Turn string into code
+#### Turn string into bariable
 
     library(dplyr)
     library(rlang)
