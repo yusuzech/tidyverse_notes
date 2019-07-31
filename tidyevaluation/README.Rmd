@@ -1,0 +1,170 @@
+---
+title: "README"
+author: "Yifu Yan"
+date: "3/11/2019"
+output: 
+    md_document:
+    variant: markdown_github
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## 1.Usage of `mutate_all()`, `mutate_if()` and `mutate_at()`
+
+Use scoped variants of `summarise()`, `mutate(`) and `transmute()` when handling many columns. 
+
+1. `.predicate`:
+    1. `_at()` variants accepts `vars()` for selecting columns.
+    1. `_if()` variants accepts logical conditions for selecting columns.
+1. `.funs`:
+    1. Use `funs()`, which support renaming new columns
+    2. Use function name(e.g. sum,mean)
+    3. Use purrr syntax(`~.x`)
+
+```{r}
+library(dplyr)
+library(rlang)
+```
+
+
+Instead of doing:
+
+```{r}
+mtcars %>%
+    group_by(cyl) %>%
+    transmute(mpg_sum = sum(mpg),
+           disp_sum = sum(disp),
+           mpg_pct = mpg/sum(mpg),
+           disp_pct = disp/sum(disp)) %>%
+    head() %>%
+    knitr::kable()
+```
+
+
+Do:
+
+```{r}
+mtcars %>%
+    group_by(cyl) %>%
+    transmute_at(vars(mpg,disp),
+              funs(sum = sum(.),
+                   pct = ./sum(.))) %>%
+    head() %>%
+    knitr::kable()
+```
+
+## 2.Programming with dplyr(symbols, expressions, quosures and strings conversion and evaluation)
+
+When Programming with **tidyverse/dplyr/ggplot**, Sometimes we need conversion between symbols, expressions, quosures and strings. It can be really annoying if we don't know what to do. Luckily,with `rlang` package, we can perform these calculations easily.
+
+```{r include=FALSE}
+library(dplyr)
+library(rlang)
+```
+
+Based on my personal understanding the difference between them are:
+
+```{r echo=FALSE}
+tribble(
+    ~ Type, ~ `How to Create`, ~ Notes,
+    "string", 'var <- "a"', "",
+    "symbols", "symbol1 <- sym('a');", "Convert string to symbol",
+    "expression", "expr1 <- expr(a + 1)", "Expression will not be evaluated until using `eval_tidy()`",
+    "quosure", "quo1 <- quo(a + 1)", "Quosure has its original environment attatched, it will always be evaluated in attached environment"
+) %>%
+    knitr::kable()
+```
+
+
+## Tidy Evaluation in global environment 
+
+### `sym` and `syms`
+
+`sym` and `syms` Convert string(s) to symbol(s).
+
+#### Singular
+
+```{r}
+myvar <- 1
+# Convert string to symbol
+sym("myvar")
+# Evaluate
+eval_tidy(sym("myvar"))
+```
+
+#### Plural
+
+```{r}
+myvar1 <- 1
+myvar2 <- 2
+# convert strings to symbols
+syms(list("myvar1","myvar2"))
+# evaluate
+purrr::map(syms(list("myvar1","myvar2")),eval_tidy)
+```
+
+#### Assignment
+
+##### Singular assignment using  `sym()` and `eval_bare()`/`base::eval()`/`env_bind()`/`assign()`
+
+```{r}
+var_name <- "a"
+var_value <- "myvalue"
+
+# construct assignment expression
+myexpr <- call2("<-",sym(var_name),var_value)
+myexpr
+
+# evaluate ----
+invisible(eval_bare(myexpr)) # eval_bare prints to console, so use invisible to hide it
+# or 
+eval(myexpr) # this works the same way
+# or
+env_bind(current_env(),!!sym(var_name) := var_value)
+# or
+assign(var_name,var_value) # sym() is not needed in this case
+
+a
+```
+
+##### Assignment using `sym()` and `eval()`
+
+### `expr` and `exprs`
+
+`expr` and `exprs` presrve expressions, it will be evaluated only when evaluated with `eval_tidy()`
+
+```{r}
+
+expr1 <- expr(a + 1) # a hasn't be defined yet
+# Expression
+expr1
+
+# Evaluate
+a <- 1
+eval_tidy(expr1)
+
+
+```
+
+```{r}
+my_expres <- exprs(a+1,b+1)
+# expressions
+my_expres
+
+# evaluate
+a <- 1 
+b <- 2
+purrr::map(my_expres,eval_tidy)
+```
+
+**Assign values using expression**
+
+```{r}
+
+```
+
+
+### `quo` and `quos`

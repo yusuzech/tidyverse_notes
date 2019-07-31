@@ -108,13 +108,16 @@ Do:
         knitr::kable()
 
     ## Warning: funs() is soft deprecated as of dplyr 0.8.0
-    ## please use list() instead
+    ## Please use a list of either functions or lambdas: 
     ## 
-    ##   # Before:
-    ##   funs(name = f(.))
+    ##   # Simple named list: 
+    ##   list(mean = mean, median = median)
     ## 
-    ##   # After: 
-    ##   list(name = ~ f(.))
+    ##   # Auto named with `tibble::lst()`: 
+    ##   tibble::lst(mean, median)
+    ## 
+    ##   # Using lambdas
+    ##   list(~ mean(., trim = .2), ~ median(., na.rm = TRUE))
     ## This warning is displayed once per session.
 
 <table>
@@ -173,141 +176,159 @@ Do:
 </tbody>
 </table>
 
-2.Programming with dplyr(variable, argument and string conversions)
--------------------------------------------------------------------
+2.Programming with dplyr(symbols, expressions, quosures and strings conversion and evaluation)
+----------------------------------------------------------------------------------------------
 
-When Programming with **tidyverse(dplyr,ggplot)**, we need to make
-conversions betwwen string, argument and variable frequently. It can be
+When Programming with **tidyverse/dplyr/ggplot**, Sometimes we need
+conversion between symbols, expressions, quosures and strings. It can be
 really annoying if we don’t know what to do. Luckily,with `rlang`
 package, we can perform these calculations easily.
 
-    library(dplyr)
-    library(rlang)
+Based on my personal understanding the difference between them are:
 
-### No functions
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">How to Create</th>
+<th style="text-align: left;">Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">string</td>
+<td style="text-align: left;">var &lt;- “a”</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">symbols</td>
+<td style="text-align: left;">symbol1 &lt;- sym(‘a’);</td>
+<td style="text-align: left;">Convert string to symbol</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">expression</td>
+<td style="text-align: left;">expr1 &lt;- expr(a + 1)</td>
+<td style="text-align: left;">Expression will not be evaluated until using <code>eval_tidy()</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">quosure</td>
+<td style="text-align: left;">quo1 &lt;- quo(a + 1)</td>
+<td style="text-align: left;">Quosure has its original environment attatched, it will always be evaluated in attached environment</td>
+</tr>
+</tbody>
+</table>
 
-#### Convert String to Variable
+Tidy Evaluation in global environment
+-------------------------------------
 
-    x <- c(1,2,3) 
-    y <- c("a","b","c")
-    # convert and evaluate
-    print(eval_tidy(sym("x")))
+### `sym` and `syms`
 
-    ## [1] 1 2 3
+`sym` and `syms` Convert string(s) to symbol(s).
 
-    # convert a list of string to variable and evaluate
-    for(v in syms(list("x","y"))){
-        print(eval_tidy(v))
-    }
+#### Singular
 
-    ## [1] 1 2 3
-    ## [1] "a" "b" "c"
+    myvar <- 1
+    # Convert string to symbol
+    sym("myvar")
 
-#### Convert variable to string
+    ## myvar
 
-    quo(x) %>%
-        as_name()
+    # Evaluate
+    eval_tidy(sym("myvar"))
 
-    ## [1] "x"
+    ## [1] 1
 
-    #convert a list of variable to string
-    for(x in quos(x,y,z)){
-        print(as_name(x))
-    }
+#### Plural
 
-    ## [1] "x"
-    ## [1] "y"
-    ## [1] "z"
+    myvar1 <- 1
+    myvar2 <- 2
+    # convert strings to symbols
+    syms(list("myvar1","myvar2"))
 
-#### Evaluate string as code
+    ## [[1]]
+    ## myvar1
+    ## 
+    ## [[2]]
+    ## myvar2
 
-    #evaluate string as code
-    print(eval_tidy(parse_expr("sum(c(1,2,3))")))
+    # evaluate
+    purrr::map(syms(list("myvar1","myvar2")),eval_tidy)
 
-    ## [1] 6
+    ## [[1]]
+    ## [1] 1
+    ## 
+    ## [[2]]
+    ## [1] 2
 
-    # one more conversion is required is the string is saved to a variable
-    x <- "sum(c(1,2,3))"
-    quo(x) %>%
-        eval_tidy() %>%
-        parse_expr() %>%
-        eval_tidy() %>%
-        print()
+#### Assignment
 
-    ## [1] 6
+##### Assignment using `sym()` and `eval_bare()`
 
-    # evaluate a "list" of string as code
-    x <- 1
-    y <- 2
-    z <- 3
-    for(arg in parse_exprs("x == 1;y > 1;is.numeric(z)")){
-        print(eval_tidy(arg)) # default environment: global_env()
-    }
+    var_name <- "a"
+    var_value <- "assign value using sym()"
 
-    ## [1] TRUE
-    ## [1] TRUE
-    ## [1] TRUE
+    # construct assignment expression
+    myexpr <- call2("<-",sym(var_name),var_value)
+    myexpr
 
-    # use custom data
-    for(arg in parse_exprs("x == 1;y > 1;is.numeric(z)")){
-        print(eval_tidy(arg,data = list(x=2,y=0,z="a"))) # custom data
-    }
+    ## a <- "assign value using sym()"
 
-    ## [1] FALSE
-    ## [1] FALSE
-    ## [1] FALSE
+    # evaluate
+    invisible(eval_bare(myexpr)) # eval_bare prints to console, so use invisible to hide it
+    a
 
-#### Turn code into string
+    ## [1] "assign value using sym()"
 
-    x <- 5
-    quo(x+5) %>% 
-        quo_text()
+### `expr` and `exprs`
 
-    ## [1] "x + 5"
+`expr` and `exprs` presrve expressions, it will be evaluated only when
+evaluated with `eval_tidy()`
 
-    for(arg in quos(x+5,y >2,z != 3)){
-        print(quo_text(arg))
-    }
+    expr1 <- expr(a + 1) # a hasn't be defined yet
+    cat("Expression:\n")
 
-    ## [1] "x + 5"
-    ## [1] "y > 2"
-    ## [1] "z != 3"
+    ## Expression:
 
-### In functions
+    print(expr1)
 
-#### Turn string into variable
+    ## a + 1
 
-    library(dplyr)
-    library(rlang)
+    cat("Evaluate:\n")
 
-    get_avg <- function(g){
-        g <- sym(g)
-        return(
-            iris %>%
-                group_by(!!g) %>%
-                summarise(avg = mean(Sepal.Length))
-        )
-    }
+    ## Evaluate:
 
-    get_avg("Species")
+    a <- 1
+    eval_tidy(expr1)
 
-    ## # A tibble: 3 x 2
-    ##   Species      avg
-    ##   <fct>      <dbl>
-    ## 1 setosa      5.01
-    ## 2 versicolor  5.94
-    ## 3 virginica   6.59
+    ## [1] 2
 
-    library(dplyr)
-    library(ggplot2)
-    library(rlang)
+    my_expres <- exprs(a+1,b+1)
+    cat("Expressions:\n")
 
-    color_by <- function(type){
-        p <- ggplot(data = iris,aes(x = Sepal.Length, y = Sepal.Width)) +
-            geom_point(aes(color = !!sym(type)))
-        return(p)
-    }
+    ## Expressions:
 
-    color_by("Species")
+    my_expres
 
-![](README_files/figure-markdown_strict/unnamed-chunk-10-1.png)
+    ## [[1]]
+    ## a + 1
+    ## 
+    ## [[2]]
+    ## b + 1
+
+    cat("Evaluate:\n")
+
+    ## Evaluate:
+
+    a <- 1 
+    b <- 2
+    purrr::map(my_expres,eval_tidy)
+
+    ## [[1]]
+    ## [1] 2
+    ## 
+    ## [[2]]
+    ## [1] 3
+
+**Assign values using expression**
+
+### `quo` and `quos`
