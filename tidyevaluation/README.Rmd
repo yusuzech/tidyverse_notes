@@ -56,9 +56,7 @@ mtcars %>%
     knitr::kable()
 ```
 
-## 2.Programming with dplyr(symbols, expressions, quosures and strings conversion and evaluation)
-
-When Programming with **tidyverse/dplyr/ggplot**, Sometimes we need conversion between symbols, expressions, quosures and strings. It can be really annoying if we don't know what to do. Luckily,with `rlang` package, we can perform these calculations easily.
+## 2.Tidy Evaluation in global environment 
 
 ```{r include=FALSE}
 library(dplyr)
@@ -79,9 +77,7 @@ tribble(
 ```
 
 
-## Tidy Evaluation in global environment 
-
-### `sym` and `syms`
+### 1.`sym` and `syms`
 
 `sym` and `syms` Convert string(s) to symbol(s).
 
@@ -132,7 +128,7 @@ a
 
 ##### Assignment using `sym()` and `eval()`
 
-### `expr` and `exprs`
+### 2.`expr` and `exprs`
 
 `expr` and `exprs` presrve expressions, it will be evaluated only when evaluated with `eval_tidy()`
 
@@ -167,4 +163,14 @@ purrr::map(my_expres,eval_tidy)
 ```
 
 
-### `quo` and `quos`
+### 3.`quo` and `quos`
+
+
+## 3.Programming with Tidyevaluation(use symbol, expression, quosure in functions)
+
+### `ensym()` and `ensyms()`
+
+### `enexpr()` and `enexprs()`
+
+### `enquo()` adn `enquos()`
+
