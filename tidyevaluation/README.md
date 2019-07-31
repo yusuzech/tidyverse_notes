@@ -262,22 +262,31 @@ Tidy Evaluation in global environment
 
 #### Assignment
 
-##### Assignment using `sym()` and `eval_bare()`
+##### Singular assignment using `sym()` and `eval_bare()`/`base::eval()`/`env_bind()`/`assign()`
 
     var_name <- "a"
-    var_value <- "assign value using sym()"
+    var_value <- "myvalue"
 
     # construct assignment expression
     myexpr <- call2("<-",sym(var_name),var_value)
     myexpr
 
-    ## a <- "assign value using sym()"
+    ## a <- "myvalue"
 
-    # evaluate
+    # evaluate ----
     invisible(eval_bare(myexpr)) # eval_bare prints to console, so use invisible to hide it
+    # or 
+    eval(myexpr) # this works the same way
+    # or
+    env_bind(current_env(),!!sym(var_name) := var_value)
+    # or
+    assign(var_name,var_value) # sym() is not needed in this case
+
     a
 
-    ## [1] "assign value using sym()"
+    ## [1] "myvalue"
+
+##### Assignment using `sym()` and `eval()`
 
 ### `expr` and `exprs`
 
@@ -285,28 +294,19 @@ Tidy Evaluation in global environment
 evaluated with `eval_tidy()`
 
     expr1 <- expr(a + 1) # a hasn't be defined yet
-    cat("Expression:\n")
-
-    ## Expression:
-
-    print(expr1)
+    # Expression
+    expr1
 
     ## a + 1
 
-    cat("Evaluate:\n")
-
-    ## Evaluate:
-
+    # Evaluate
     a <- 1
     eval_tidy(expr1)
 
     ## [1] 2
 
     my_expres <- exprs(a+1,b+1)
-    cat("Expressions:\n")
-
-    ## Expressions:
-
+    # expressions
     my_expres
 
     ## [[1]]
@@ -315,10 +315,7 @@ evaluated with `eval_tidy()`
     ## [[2]]
     ## b + 1
 
-    cat("Evaluate:\n")
-
-    ## Evaluate:
-
+    # evaluate
     a <- 1 
     b <- 2
     purrr::map(my_expres,eval_tidy)
